@@ -16,10 +16,7 @@ spec:
         app: tour-of-heroes-web
     spec:
       containers:
-      - env:
-        - name: API_URL
-          value: http://20.67.170.114/api/hero
-        image: argocdregistry.azurecr.io/tourofheroesweb:1008
+      - image: ghcr.io/0gis0/tour-of-heroes/tour-of-heroes:d856369
         name: tour-of-heroes-web
         ports:
         - containerPort: 5000
