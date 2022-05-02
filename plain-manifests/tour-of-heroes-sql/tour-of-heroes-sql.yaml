@@ -38,20 +38,4 @@ spec:
       volumes:
         - name: sqlserver-data
           persistentVolumeClaim:
-            claimName: azure-managed-csi-claim
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: tour-of-heroes-sql
-  name: tour-of-heroes-sql
-spec:
-  ports:
-    - name: sqlserverport
-      port: 1433
-      targetPort: 1433
-  selector:
-    app: tour-of-heroes-sql
+            claimName: sql-pvc
