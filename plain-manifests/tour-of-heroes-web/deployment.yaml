@@ -16,7 +16,7 @@ spec:
         app: tour-of-heroes-web
     spec:
       containers:
-      - image: ghcr.io/0gis0/tour-of-heroes/tour-of-heroes:2b732d8
+      - image: ghcr.io/0gis0/tour-of-heroes/tour-of-heroes:63980cb
         name: tour-of-heroes-web
         ports:
         - containerPort: 5000
