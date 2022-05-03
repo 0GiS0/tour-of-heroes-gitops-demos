@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "tour-of-heroes-db.fullname" . }}
+  labels:
+    {{- include "tour-of-heroes-db.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "tour-of-heroes-db.selectorLabels" . | nindent 4 }}

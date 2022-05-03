@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tour-of-heroes-api
+  name: tour-of-heroes-api
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+

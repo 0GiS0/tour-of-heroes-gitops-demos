@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tour-of-heroes-sql
+  name: tour-of-heroes-sql
+spec:
+  template:
+    spec:
+      volumes:
+      - name: sqlserver-data
+        persistentVolumeClaim:
+          claimName: dev-azure-managed-csi-claim

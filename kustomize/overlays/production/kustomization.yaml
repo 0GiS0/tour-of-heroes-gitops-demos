@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: tour-of-heroes
+namePrefix: prod-
+commonLabels:
+  app: tour-of-heroes-api
+patchesStrategicMerge:
+- backend/deployment-patch.yaml
+resources:
+- ../../base
+images:
+- name: argocdregistry.azurecr.io/tourofheroesapi
+  newTag: "1000"

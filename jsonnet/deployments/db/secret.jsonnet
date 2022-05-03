@@ -1,0 +1,11 @@
+{
+  apiVersion: 'v1',
+  data: {
+    SA_PASSWORD: 'WW91clN0cm9uZyFQYXNzdzByZA==',
+  },
+  kind: 'Secret',
+  metadata: {
+    creationTimestamp: null,
+    name: 'mssql',
+  },
+}
