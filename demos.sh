@@ -338,36 +338,35 @@ rm ./secured-secrets/base/db/secret.yaml
 git add -A && git commit -m "Demo secretos seguros"
 git push
 
-# Test decryption
-sops --decrypt ./tour-of-heroes-secured-secrets/base/backend/secret.enc.yaml > backend-secret.yaml
+# Prueba de descifrado
+sops --decrypt ./secured-secrets/base/backend/secret.enc.yaml > backend-secret.yaml
 
-# Create a source of this repo
-flux create source git tour-of-heroes-secured-secrets \
---namespace=tour-of-heroes \
---url=$REPO_GITOPS_DEMOS \
+# Creo una source en con el repositorio en el mismo namespace que el secreto
+flux create source git tour-of-heroes \
+--namespace=tour-of-heroes-secrets \
+--url=$REPO_URL \
 --branch=main \
---interval=30s \
---export > ./clusters/$CLUSTER_NAME/sources/tour-of-heroes-secured-secrets.yaml
+--interval=30s 
 
-# Create an application in Flux with SOPS 
+# Crear una aplicación en Flux con secretos cifrados en SOPS 
 flux create kustomization tour-of-heroes-secured-secrets \
---namespace=tour-of-heroes \
---source=tour-of-heroes-secured-secrets \
+--source=tour-of-heroes \
+--namespace=tour-of-heroes-secrets \
 --path="secured-secrets/overlays/production" \
 --prune=true \
 --interval=10s \
 --decryption-provider=sops \
---decryption-secret=sops-gpg \
---export > ./clusters/$CLUSTER_NAME/apps/tour-of-heroes-secured-secrets.yaml
+--decryption-secret=sops-gpg 
 
-# Add this changes to the repo
-git add -A && git commit -m "Add tour-of-heroes-secured-secrets"
-git push
+# Comprobar que se ha aplicado el cambio
+flux get kustomizations -n tour-of-heroes-secrets --watch
+
+# Comprobar que la aplicación se ha desplegado correctamente
+kubectl get pods -n tour-of-heroes-secrets
 
 # En el caso de los SOP secrets no añade el prod- por delante del secreto
 
-# Check the deployment
-flux get kustomizations -n tour-of-heroes --watch
+
 
 # Check status in Grafana
 kubectl -n monitoring port-forward svc/kube-prometheus-stack-grafana 3000:80
