@@ -8,8 +8,8 @@ patchesStrategicMerge:
 resources:
 - ../../base
 images:
-- name: argocdregistry.azurecr.io/tourofheroesapi
-  newTag: "1007"
+- name: ghcr.io/0gis0/tour-of-heroes/tour-of-heroes
+  newTag: "33cfcc9"
 secretGenerator:
 - behavior: replace
   literals:
