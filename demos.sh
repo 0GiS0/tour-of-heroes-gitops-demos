@@ -41,11 +41,34 @@ argocd app create kustomize-tour-of-heroes \
 --upsert
 
 
-### Despliegue en flux cd
+### Despliegue en Flux cd
 
 # Cambiamos de contexto de Kubernetes al cluster de fluxcd
 kubectl config use-context kind-fluxcd
 
+
+######################################################
+################### Helm Demos #######################
+######################################################
+
+
+######################################################
+################### Helm Demos #######################
+######################################################
+
+
+
+######################################################
+################### CI Integration ###################
+######################################################
+
+
+
 # Cambiar una imagen
 cd kustomize/overlays/development
 kustomize edit set image ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api:75bd59f
+
+
+######################################################
+################# Secretos seguros ###################
+######################################################
