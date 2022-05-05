@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: argocdregistry.azurecr.io/tourofheroesapi
+  repository: ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "981"
+  tag: "75bd59f"
 
 imagePullSecrets: []
 nameOverride: ""

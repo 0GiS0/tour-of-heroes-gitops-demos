@@ -1,0 +1,13 @@
+# Default values for tour-of-heroes-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 5
+
+
+## Subcharts
+api:
+  image:
+    repository: ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api
+    tag: "75bd59f"
+  replicaCount: 3

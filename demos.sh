@@ -72,6 +72,7 @@ flux create kustomization tour-of-heroes-kustomize \
 --prune=true \
 --interval=30s 
 
+# Comprobar cuántas kustomizaciones tenemos en el cluster configuradas
 flux get kustomizations 
 
 # Ver si ha creado el namespace
@@ -80,12 +81,69 @@ kubectl get ns
 # Ver si ha creado los recursos dentro de dev-tour-of-heroes
 kubectl get all -n dev-tour-of-heroes
 
-flux get all 
-
 ######################################################
 ################### Helm Demos #######################
 ######################################################
 
+# Instalar helm
+brew install helm
+
+# Crear un chart con helm
+helm create demo-chart
+
+# Instalar el chart de tour-of-heroes
+helm install tour-of-heroes ./helm/tour-of-heroes-chart
+
+# Comprobar los charts instalados
+helm list
+
+# Comprobar que la aplicación se ha desplegado
+kubectl get all
+
+# Desinstalar el chart de tour-of-heroes
+helm delete tour-of-heroes
+
+# Instalar el chart de tour-of-heroes con otros parámetros
+helm install tour-of-heroes ./helm/tour-of-heroes-chart --set replicaCount=5 
+
+# Comprobar que la aplicación se ha desplegado
+kubectl get all
+
+# Desinstalar el chart de tour-of-heroes
+helm delete tour-of-heroes
+
+# Instalar el chart de tour-of-heroes con otros parámetros en dev-values.yaml
+helm install tour-of-heroes ./helm/tour-of-heroes-chart --values ./helm/dev-values.yaml
+
+# Comprobar que la aplicación se ha desplegado
+kubectl get all
+
+# Actualizar chart de Helm con otros parámetros
+helm upgrade tour-of-heroes ./helm/tour-of-heroes-chart --set replicaCount=2
+
+# Comprobar que la aplicación se ha desplegado
+kubectl get all
+
+# Desinstalar el chart de tour-of-heroes
+helm delete tour-of-heroes
+
+#### Desplegar en ArgoCD
+# Cambiamos el contexto de Kubernetes al cluster de argocd
+kubectl config use-context kind-argocd
+
+# Desplegamos la aplicación de Helm en Argo CD
+argocd app create helm-tour-of-heroes \
+--repo $REPO_URL \
+--path helm/tour-of-heroes-chart \
+--dest-namespace helm-tour-of-heroes \
+--dest-server https://kubernetes.default.svc \
+--sync-policy auto \
+--sync-option "CreateNamespace=true" \
+--upsert
+
+### Desplegar en Flux CD
+# Cambiamos de contexto de Kubernetes al cluster de fluxcd
+kubectl config use-context kind-flux
 
 ######################################################
 ################### Jsonnet Demos ####################
