@@ -192,117 +192,73 @@ argocd app create jsonnet-tour-of-heroes \
 ################### CI Integration ###################
 ######################################################
 
+# Manifiestos planos
+# Usando patch
+kubectl patch --local -f plain-manifests/backend/deployment.yaml \
+-p '{"spec":{"template":{"spec":{"containers":[{"name":"tour-of-heroes-api","image":"lemoncode.azurecr.io/tourofheroesapi:1234"}]}}}}' \
+-o yaml > temp.yaml 
+
+
 #### Kustomize
 
 # Cambiar una imagen
 cd kustomize/overlays/development
-kustomize edit set image ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api:75bd59f
+kustomize edit set image ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api:1234
 
+### Jsonnet
+# Cambiar una imagen
+jsonnet --tla-code "conf={image: 'HOLA LEMONCODERS!'}" jsonnet/jsonnet/deployment-with-a-function.jsonnet > temp.jsonnet
+
+### Helm?
 
 ##### ArgoCD image updater #########
 
-# Install Argo CD Image Updater
+# Instalar Argo CD Image Updater
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml
 # Important: It is not advised to run multiple replicas of the same Argo CD Image Updater instance. Just leave the number of replicas at 1, otherwise weird side effects could occur.
 
-# Modify argocd-image-updater-config
-export KUBE_EDITOR="code --wait"
-
-# k edit cm -n argocd argocd-image-updater-config
-
-# Create a service principal 
-SERVICE_PRINCIPAL_NAME=argocd-acr-sp
-
-# Obtain the full registry ID for subsequent command args
-ACR_REGISTRY_ID=$(az acr show --name $ACR_NAME --query "id" --output tsv)
-
-# Create the service principal with rights scoped to the registry.
-# Default permissions are for docker pull access. Modify the '--role'
-# argument value as desired:
-# acrpull:     pull only
-# acrpush:     push and pull
-# owner:       push, pull, and assign roles
-PASSWORD=$(az ad sp create-for-rbac --name $SERVICE_PRINCIPAL_NAME --scopes $ACR_REGISTRY_ID --role acrpull --query "password" --output tsv)
-USER_NAME=$(az ad sp list --display-name $SERVICE_PRINCIPAL_NAME --query "[].appId" --output tsv)
-
-# Create a secret with the ACR credentials
-kubectl create secret docker-registry acr-credentials \
-    --namespace argocd \
-    --docker-server=$ACR_NAME.azurecr.io \
-    --docker-username=$USER_NAME \
-    --docker-password=$PASSWORD
-
-# Add repo with Helm chart
-REPO_URL="https://gis@dev.azure.com/gis/Tour%20Of%20Heroes%20GitOps/_git/Tour%20Of%20Heroes%20GitOps%20with%20Helm"
-USER_NAME="giselatb"
-PASSWORD="gg4vlktdlqel5tf7hi4aygwznu2nked52krhuwksefjmjsxyd5sq"
-
-argocd repo add $REPO_URL \
---name tour-of-heroes-gitops-with-helm \
---type git \
---username $USER_NAME \
---password $PASSWORD \
---project tour-of-heroes
-
-# Create an application with the Argo CD Image Updater
-argocd app create tour-of-heroes-helm \
+# Crear una aplicación con Argo CD Image Updater configurado para actualizar las imágenes automáticamente
+argocd app create tour-of-heroes-image-updater \
 --repo $REPO_URL \
---path tour-of-heroes-chart \
+--path helm/tour-of-heroes-chart \
 --dest-namespace tour-of-heroes-helm \
 --dest-server https://kubernetes.default.svc \
 --sync-policy auto \
 --sync-option "CreateNamespace=true" \
---annotations "argocd-image-updater.argoproj.io/image-list=api=$ACR_NAME.azurecr.io/tourofheroesapi, web=$ACR_NAME.azurecr.io/tourofheroesweb" \
+--annotations "argocd-image-updater.argoproj.io/image-list=api=ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api, web=ghcr.io/0gis0/tour-of-heroes/tour-of-heroes" \
 --annotations "argocd-image-updater.argoproj.io/api.helm.image-name=api.image.repository" \
 --annotations "argocd-image-updater.argoproj.io/api.helm.image-tag=api.image.tag" \
---annotations "argocd-image-updater.argoproj.io/api.pull-secret=pullsecret:argocd/acr-credentials" \
 --annotations "argocd-image-updater.argoproj.io/api.update-strategy=latest" \
 --annotations "argocd-image-updater.argoproj.io/web.helm.image-name=image.repository" \
 --annotations "argocd-image-updater.argoproj.io/web.helm.image-tag=image.tag" \
---annotations "argocd-image-updater.argoproj.io/web.pull-secret=pullsecret:argocd/acr-credentials" \
 --annotations "argocd-image-updater.argoproj.io/web.update-strategy=latest" \
 --upsert
 
-# Check argocd image updater logs
-kubectl logs -n argocd -f argocd-image-updater-59c45cbc5c-pktkn
-
-# Create an application with the Argo CD Image Updater for branch dev
-argocd app create tour-of-heroes-helm-dev \
---repo $REPO_URL \
---path tour-of-heroes-chart \
---revision dev \
---dest-namespace tour-of-heroes-helm \
---dest-server https://kubernetes.default.svc \
---sync-policy auto \
---sync-option "CreateNamespace=true" \
---annotations "argocd-image-updater.argoproj.io/image-list=api=$ACR_NAME.azurecr.io/tourofheroesapi, web=$ACR_NAME.azurecr.io/tourofheroesweb" \
---annotations "argocd-image-updater.argoproj.io/api.helm.image-name=api.image.repository" \
---annotations "argocd-image-updater.argoproj.io/api.helm.image-tag=api.image.tag" \
---annotations "argocd-image-updater.argoproj.io/api.pull-secret=pullsecret:argocd/acr-credentials" \
---annotations "argocd-image-updater.argoproj.io/api.update-strategy=latest" \
---annotations "argocd-image-updater.argoproj.io/web.helm.image-name=image.repository" \
---annotations "argocd-image-updater.argoproj.io/web.helm.image-tag=image.tag" \
---annotations "argocd-image-updater.argoproj.io/web.pull-secret=pullsecret:argocd/acr-credentials" \
---annotations "argocd-image-updater.argoproj.io/web.update-strategy=latest" \
---upsert
-
-
-
-
+# Comprobar los logs de Argo CD image updater
+kubectl logs -n argocd -f $(kubectl get pod -l app.kubernetes.io/name=argocd-image-updater -n argocd -o name)
 
 
 ######################################################
 ################# Secretos seguros ###################
 ######################################################
 
+# Decodificar un secreto en base64
+echo U2VydmVyPXRvdXItb2YtaGVyb2VzLXNxbCwxNDMzO0luaXRpYWwgQ2F0YWxvZz1oZXJvZXM7UGVyc2lzdCBTZWN1cml0eSBJbmZvPUZhbHNlO1VzZXIgSUQ9c2E7UGFzc3dvcmQ9WW91clN0cm9uZyFQYXNzdzByZDsK | base64 -d
+
 ### Mozilla SOPS: https://fluxcd.io/docs/guides/mozilla-sops/
 
-# Install gnupg and SOPS
+# Cambiamos el contexto de Kubernetes al cluster de flux
+kubectl config use-context kind-flux
+
+# Instalamos gnupg and SOPS
 brew install gnupg sops
 
-# Generate a GPG key
+# Generamos un par de claves para poder cifrar y descifrars
 export KEY_NAME="cluster0.returngis.net"
 export KEY_COMMENT="flux secrets"
+
+# Eliminar si tenemos una clave anterior con el mismo nombre
+gpg --delete-secret-and-public-key $KEY_NAME
 
 gpg --batch --full-generate-key <<EOF
 %no-protection
@@ -315,22 +271,25 @@ Name-Comment: ${KEY_COMMENT}
 Name-Real: ${KEY_NAME}
 EOF
 
-# Retrieve the GPG key fingerprint
+# Recuperamos el fingerprint de la clave
 KEY=$(gpg --list-keys ${KEY_NAME} | grep pub -A 1 | grep -v pub)
 
-# Export the public and private keypair from your local GPG keyring
-# and create a Kubernetes secret named sops-gpg in the tour-of-heroes namespace:
+# Crea un nuevo namespace para esta demo
+kubectl create namespace tour-of-heroes-secrets
+
+# Exporta el par de claves públicas y privadas de tu llavero GPG local
+# y crear un secreto Kubernetes llamado sops-gpg en el namespace tour-of-heroes:
 gpg --export-secret-keys --armor "${KEY_NAME}" |
 kubectl create secret generic sops-gpg \
---namespace=tour-of-heroes \
+--namespace=tour-of-heroes-secrets \
 --from-file=sops.asc=/dev/stdin
 
-kubectl get secrets -n tour-of-heroes
+# Comprobamos que el secreto se ha creado correctamente
+kubectl get secrets -n tour-of-heroes-secrets
 
-# Create secrets for backend and db
-# Create a secret for the backend
+# Crear un secreto para el backend
 
-cat > ./tour-of-heroes-secured-secrets/base/backend/secret.yaml <<EOF
+cat > ./secured-secrets/base/backend/secret.yaml <<EOF
 ---
 apiVersion: v1
 kind: Secret
@@ -341,8 +300,8 @@ stringData:
   password: Server=prod-tour-of-heroes-sql,1433;Initial Catalog=heroes;Persist Security Info=False;User ID=sa;Password=YourStrong!Passw0rd;
 EOF
 
-# Create a secret for the db
-cat > ./tour-of-heroes-secured-secrets/base/db/secret.yaml <<EOF
+# Crear un secreto para la base de datos
+cat > ./secured-secrets/base/db/secret.yaml <<EOF
 ---
 apiVersion: v1
 kind: Secret
@@ -353,7 +312,7 @@ stringData:
   SA_PASSWORD: YourStrong!Passw0rd
 EOF
 
-#Create SOPS configuration
+#Crear configuración para SOPS
 cat <<EOF > .sops.yaml
 creation_rules:
   - path_regex: .*.yaml
@@ -361,20 +320,22 @@ creation_rules:
     pgp: ${KEY}
 EOF
 
-# Encrypt secret for backend
-sops --encrypt ./tour-of-heroes-secured-secrets/base/backend/secret.yaml > ./tour-of-heroes-secured-secrets/base/backend/secret.enc.yaml
-# Remove the unencrypted secret
-rm ./tour-of-heroes-secured-secrets/base/backend/secret.yaml
+# Cifrar el secreto para el backend
+sops --encrypt ./secured-secrets/base/backend/secret.yaml > ./secured-secrets/base/backend/secret.enc.yaml
 
-# Encrypt secret for db
-sops --encrypt ./tour-of-heroes-secured-secrets/base/db/secret.yaml > ./tour-of-heroes-secured-secrets/base/db/secret.enc.yaml
-# Remove the unencrypted secret
-rm ./tour-of-heroes-secured-secrets/base/db/secret.yaml
+# Cifro el secreto para la base de datos
+sops --encrypt ./secured-secrets/base/db/secret.yaml > ./secured-secrets/base/db/secret.enc.yaml
 
-# IMPORTANT: you have to add this files to the kustomization.yaml files
+# Elimino el secreto que no está cifrado del backend
+rm ./secured-secrets/base/backend/secret.yaml
 
-# Add this changes to the repo
-git add -A && git commit -m "Add secured secret demo"
+# Elimino el secreto que no está cifrado de la base de datos
+rm ./secured-secrets/base/db/secret.yaml
+
+# IMPORTANTE: tienes que añadir estos archivos a los archivos kustomization.yaml
+
+# Hago commit de estos cambios
+git add -A && git commit -m "Demo secretos seguros"
 git push
 
 # Test decryption

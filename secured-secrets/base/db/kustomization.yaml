@@ -3,13 +3,5 @@ kind: Kustomization
 resources:  
   - deployment.yaml
   - service.yaml
-  - persistent-volume.yaml
-  - secret-sealed.yaml
-  # - secret.enc.yaml
-  # - secret.yaml
-
-# secretGenerator:
-#   - name: mssql
-#     type: Opaque
-#     literals:
-#       - "SA_PASSWORD=YourStrong!Passw0rd"
+  - persistent-volume.yaml  
+  - secret.enc.yaml

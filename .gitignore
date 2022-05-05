@@ -1,2 +1,4 @@
 .dccache
 demo-chart/
+temp.yaml
+temp.jsonnet
