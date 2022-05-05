@@ -8,7 +8,7 @@
     name: 'tour-of-heroes-api',
   },
   spec: {
-    type: 'LoadBalancer',
+    type: 'NodePort',
     ports: [
       {
         name: 'web',

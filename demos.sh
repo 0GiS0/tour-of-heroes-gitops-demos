@@ -145,26 +145,42 @@ argocd app create helm-tour-of-heroes \
 # Cambiamos de contexto de Kubernetes al cluster de fluxcd
 kubectl config use-context kind-flux
 
+# Crear aplicación con Helm en Flux CD
+k create ns tour-of-heroes-helm
+
+flux create helmrelease tour-of-heroes-helm \
+--source=GitRepository/tour-of-heroes \
+--chart="./helm/tour-of-heroes-chart" \
+--target-namespace=tour-of-heroes-helm \
+--interval=30s 
+
+# Comprobar que el namespace existe
+kubectl get ns 
+
+# y que la aplicación está correctamente desplegada en él
+kubectl get all -n tour-of-heroes-helm
+
 ######################################################
 ################### Jsonnet Demos ####################
 ######################################################
 
-# Add repo with jsonnet files
-REPO_URL="https://gis@dev.azure.com/gis/Tour%20Of%20Heroes%20GitOps/_git/Tour%20Of%20Heroes%20Jsonnet"
-USER_NAME="giselatb"
-PASSWORD="poflpbieyctfiuwr2zkbpgxum7ifavpgp3eqqcwmmrpfouao7xaq"
+# Instalar jsonnet
+brew install go-jsonnet
 
-argocd repo add $REPO_URL \
---name tour-of-heroes-jsonnet \
---type git \
---username $USER_NAME \
---password $PASSWORD \
---project tour-of-heroes
+# Ver el resultado de un archivo jsonnet
+jsonnet jsonnet/deployments/backend/deployment.jsonnet
 
-# Create app with jsonnet repo
+# Usar jsonnet con funciones
+jsonnet --tla-code "conf={image: 'HOLA LEMONCODERS!'}" jsonnet/jsonnet/deployment-with-a-function.jsonnet
+
+
+# Cambiamos el contexto de Kubernetes al cluster de argocd
+kubectl config use-context kind-argocd
+
+# Crear la aplicación con jsonnet
 argocd app create jsonnet-tour-of-heroes \
 --repo $REPO_URL \
---path deployments \
+--path jsonnet/deployments \
 --directory-recurse \
 --dest-namespace tour-of-heroes-jsonnet \
 --dest-server https://kubernetes.default.svc \

@@ -31,7 +31,7 @@
                   value: 'http://20.67.170.114/api/hero',
                 },
               ],
-              image: 'argocdregistry.azurecr.io/tourofheroesweb:1008',
+              image: 'ghcr.io/0gis0/tour-of-heroes/tour-of-heroes:aadda92',
               name: 'tour-of-heroes-web',
               ports: [
                 {

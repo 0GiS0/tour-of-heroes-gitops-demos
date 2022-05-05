@@ -35,7 +35,7 @@
                 },
               },
             ],
-            image: 'argocdregistry.azurecr.io/tourofheroesapi:1007',
+            image: 'ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api:75bd59f',
             name: 'tour-of-heroes-api',
             ports: [
               {
