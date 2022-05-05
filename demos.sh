@@ -40,6 +40,12 @@ argocd app create kustomize-tour-of-heroes \
 --sync-option "CreateNamespace=true" \
 --upsert
 
+
+### Despliegue en flux cd
+
+# Cambiamos de contexto de Kubernetes al cluster de fluxcd
+kubectl config use-context kind-fluxcd
+
 # Cambiar una imagen
 cd kustomize/overlays/development
 kustomize edit set image ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api:75bd59f
