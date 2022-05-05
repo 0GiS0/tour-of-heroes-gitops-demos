@@ -2,10 +2,9 @@
   apiVersion: 'v1',
   kind: 'PersistentVolumeClaim',
   metadata: {
-    name: 'azure-managed-csi-claim',
+    name: 'sql-pvc',
   },
-  spec: {
-    storageClassName: 'managed-csi',
+  spec: {    
     resources: {
       requests: {
         storage: '8Gi',

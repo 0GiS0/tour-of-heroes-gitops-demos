@@ -66,7 +66,7 @@
             {
               name: 'sqlserver-data',
               persistentVolumeClaim: {
-                claimName: 'azure-managed-csi-claim',
+                claimName: 'sql-pvc',
               },
             },
           ],
