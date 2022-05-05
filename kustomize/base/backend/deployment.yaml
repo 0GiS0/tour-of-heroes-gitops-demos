@@ -4,7 +4,6 @@ metadata:
   name: tour-of-heroes-api
 spec:
   replicas: 1
-  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: tour-of-heroes-api
