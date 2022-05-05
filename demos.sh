@@ -364,114 +364,14 @@ flux get kustomizations -n tour-of-heroes-secrets --watch
 # Comprobar que la aplicación se ha desplegado correctamente
 kubectl get pods -n tour-of-heroes-secrets
 
-# En el caso de los SOP secrets no añade el prod- por delante del secreto
+# Comprobar que los secretos se han creado correctamente
+kubectl get secrets -n tour-of-heroes-secrets
 
-
-
-# Check status in Grafana
-kubectl -n monitoring port-forward svc/kube-prometheus-stack-grafana 3000:80
-http://localhost:3000/d/flux-cluster/flux-cluster-stats?orgId=1&refresh=10s
-
-# See secret decoded
-kubectl -n prod-tour-of-heroes get secrets
-
-### Sealed Secrets: https://fluxcd.io/docs/guides/sealed-secrets/
-
-# Install the kubeseal CLI
-brew install kubeseal
-
-# Add the source for sealed secrets
-flux create source helm sealed-secrets \
---interval=1h \
---url=https://bitnami-labs.github.io/sealed-secrets \
---export > ./clusters/$AKS_NAME/sources/sealed-secrets.yaml
-
-# Create a helm release for sealed secrets
-flux create helmrelease sealed-secrets \
---interval=1h \
---release-name=sealed-secrets-controller \
---target-namespace=flux-system \
---source=HelmRepository/sealed-secrets \
---chart=sealed-secrets \
---chart-version=">=1.15.0-0" \
---crds=CreateReplace \
---export > ./clusters/$CLUSTER_NAME/apps/sealed-secrets.yaml
-
-# Push changes
-git add -A && git commit -m "Add sealed secrets demo"
-git push
-
-# check helm releases
-flux get helmreleases -n flux-system --watch
-
-# At startup, the sealed-secrets controller generates a 4096-bit RSA key pair and persists the private and public keys 
-# as Kubernetes secrets in the flux-system namespace.
-# You can retrieve the public key with:
-kubeseal --fetch-cert \
---controller-name=sealed-secrets-controller \
---controller-namespace=flux-system \
-> pub-sealed-secrets.pem
-
-# Create secrets for backend and db
-# Create a secret for the backend
-
-cat > ./tour-of-heroes-secured-secrets/base/backend/secret.yaml <<EOF
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sqlserver-connection-string
-type: Opaque
-stringData:  
-  password: Server=prod-tour-of-heroes-sql,1433;Initial Catalog=heroes;Persist Security Info=False;User ID=sa;Password=YourStrong!Passw0rd;
-EOF
-
-# Create a secret for the db
-cat > ./tour-of-heroes-secured-secrets/base/db/secret.yaml <<EOF
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: mssql
-type: Opaque
-stringData:  
-  SA_PASSWORD: YourStrong!Passw0rd
-EOF
-
-# Encrypt the secrets with kubeseal
-kubeseal --scope cluster-wide --format=yaml --cert=pub-sealed-secrets.pem \
-< tour-of-heroes-secured-secrets/base/backend/secret.yaml > tour-of-heroes-secured-secrets/base/backend/secret-sealed.yaml
-
-# Remove the unencrypted secret
-rm tour-of-heroes-secured-secrets/base/backend/secret.yaml
-
-kubeseal --scope cluster-wide --format=yaml --cert=pub-sealed-secrets.pem \
-< tour-of-heroes-secured-secrets/base/db/secret.yaml > tour-of-heroes-secured-secrets/base/db/secret-sealed.yaml
-
-# Remove the unencrypted secret
-rm tour-of-heroes-secured-secrets/base/db/secret.yaml
-
-# IMPORTANT: Update the kustomization.yaml files with the secret-sealed.yaml files
-
-# Push changes
-git add -A && git commit -m "Add secrets-seaed files"
-git push
-
-# Check the deployment
-flux get kustomizations -n tour-of-heroes --watch
-
-k get all -n prod-tour-of-heroes
-
-# Check sealed secret controller
-k logs sealed-secrets-controller-868754dd89-mfpvw -n flux-system -f
-
-# En el caso de los sealed secrets si que añade el prod- por delante del secreto
-
-https://medium.com/@udhanisuranga/how-to-manage-k8s-secrets-in-aks-clusters-using-secret-store-csi-drivers-and-azure-key-vaults-5ec590a9cf51
-
-https://docs.microsoft.com/es-es/azure/azure-arc/kubernetes/tutorial-use-gitops-flux2
+# Ver el contenido de los secretos
+kubectl get secret prod-mssql -n tour-of-heroes-secrets  -o jsonpath="{.data.SA_PASSWORD}" | base64 --decode
 
 ##################################################
 ########## Eliminar clusters en kind #############
 ##################################################
 kind delete cluster --name flux
+kind delete cluster --name argocd
