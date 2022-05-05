@@ -40,6 +40,14 @@ argocd app create kustomize-tour-of-heroes \
 --sync-option "CreateNamespace=true" \
 --upsert
 
+# Crear la aplicación con la configuración de producción de Kustomize
+argocd app create kustomize-tour-of-heroes-prod \
+--repo $REPO_URL \
+--path kustomize/overlays/production \
+--dest-server https://kubernetes.default.svc \
+--sync-policy auto \
+--sync-option "CreateNamespace=true" \
+--upsert
 
 ### Despliegue en Flux cd
 
