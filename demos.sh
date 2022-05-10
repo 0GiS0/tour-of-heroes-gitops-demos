@@ -254,7 +254,7 @@ kubectl config use-context kind-flux
 brew install gnupg sops
 
 # Generamos un par de claves para poder cifrar y descifrars
-export KEY_NAME="cluster0.returngis.net"
+export KEY_NAME="cluster0.lemoncode.net"
 export KEY_COMMENT="flux secrets"
 
 # Eliminar si tenemos una clave anterior con el mismo nombre

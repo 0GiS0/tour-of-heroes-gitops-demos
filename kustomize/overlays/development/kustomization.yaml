@@ -8,8 +8,10 @@ patchesStrategicMerge:
 resources:
 - ../../base
 images:
+- name: ghcr.io/0gis0/tour-of-heroes-dotnet-api/tour-of-heroes-api  
+  newTag: "1234"
 - name: ghcr.io/0gis0/tour-of-heroes/tour-of-heroes
-  newTag: "aadda92"
+  newTag: aadda92
 secretGenerator:
 - behavior: replace
   literals:
