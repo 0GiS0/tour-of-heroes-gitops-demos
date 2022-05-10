@@ -28,7 +28,7 @@ argocd login localhost:8080
 REPO_URL="https://github.com/0GiS0/tour-of-heroes-gitops-demos"
 
 argocd repo add $REPO_URL \
---name tour-of-heroes-kustomize \
+--name tour-of-heroes \
 --type git
 
 # Crear la aplicación con la configuración de desarrollo de Kustomize
@@ -57,7 +57,7 @@ kubectl config use-context kind-flux
 ### Kustomize
 
 # Comprobar las fuentes ya dadas de alta
-flux get sources git --all-namespaces
+flux get sources git 
 
 # Dar de alta el repo en Flux
 flux create source git tour-of-heroes \
