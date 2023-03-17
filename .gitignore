@@ -2,3 +2,5 @@
 demo-chart/
 temp.yaml
 temp.jsonnet
+terraform/terraform.tfstate
+terraform/tf.plan

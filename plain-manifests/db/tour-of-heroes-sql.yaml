@@ -18,8 +18,8 @@ spec:
       securityContext:
          fsGroup: 10001
       containers:
-        # - image: mcr.microsoft.com/mssql/server:latest
-        - image: mcr.microsoft.com/azure-sql-edge
+        - image: mcr.microsoft.com/mssql/server:latest
+        # - image: mcr.microsoft.com/azure-sql-edge
           name: sqlserver
           ports:
             - containerPort: 1433
