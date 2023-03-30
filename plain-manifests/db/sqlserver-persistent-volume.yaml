@@ -3,9 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: sql-pvc
 spec:  
+  storageClassName: managed-csi  
+  accessModes:
+    - ReadWriteOnce
   resources:
     requests:
       storage: 8Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce
