@@ -6,3 +6,6 @@ terraform/terraform.tfstate
 terraform/tf.plan
 secured-secrets/base/.DS_Store
 .DS_Store
+terraform/main.tf
+terraform/terraform.tfstate.backup
+terraform/plan.tfplan

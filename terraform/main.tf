@@ -1,5 +1,15 @@
 
-provider "azurerm" {
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">=3.54.0"
+    }
+  }
+}
+
+
+provider "azurerm" {  
   features {
 
   }
@@ -22,8 +32,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   default_node_pool {
     name       = "default"
-    node_count = 1
-    vm_size    = "Standard_D2_v2"
+    vm_size    = "Standard_B4ms"
+    node_count = 3
   }
 
   identity {
