@@ -1,5 +1,5 @@
 # Get AKS credentials
-az aks get-credentials -n aks-tour-of-heroes -g aks-tour-of-heroes
+az aks get-credentials -n argo-aks-tour-of-heroes -g argo-aks-tour-of-heroes
 
 ### https://argo-cd.readthedocs.io/en/stable/getting_started/ ###
 
