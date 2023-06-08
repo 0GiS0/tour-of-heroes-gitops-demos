@@ -1,39 +1,33 @@
 
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">=3.54.0"
-    }
-  }
-}
-
-
-provider "azurerm" {  
+provider "azurerm" {
   features {
 
   }
 }
 
+variable "flux_aks_name" {
+  type = string
+  default = "flux-aks-tour-of-heroes"
+}
 
 
 # Resource group
-resource "azurerm_resource_group" "rg" {
-  name     = "aks-tour-of-heroes"
+resource "azurerm_resource_group" "flux_rg" {
+  name     = "flux-aks-tour-of-heroes"
   location = "West Europe"
 }
 
-resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "aks-tour-of-heroes"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+resource "azurerm_kubernetes_cluster" "flux_aks" {
+  name                = var.flux_aks_name
+  location            = azurerm_resource_group.flux_rg.location
+  resource_group_name = azurerm_resource_group.flux_rg.name
 
-  dns_prefix = "k8s-heroes"
+  dns_prefix = "flux-k8s-heroes"
 
   default_node_pool {
     name       = "default"
-    vm_size    = "Standard_B4ms"
-    node_count = 3
+    node_count = 1
+    vm_size    = "Standard_D2_v2"
   }
 
   identity {
@@ -42,3 +36,33 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
 }
 
+variable "argocd_aks_name" {
+  type = string
+  default = "argo-aks-tour-of-heroes"
+}
+
+
+# Resource group
+resource "azurerm_resource_group" "argo_rg" {
+  name     = "argo-aks-tour-of-heroes"
+  location = "West Europe"
+}
+
+resource "azurerm_kubernetes_cluster" "argo_aks" {
+  name                = var.argocd_aks_name
+  location            = azurerm_resource_group.argo_rg.location
+  resource_group_name = azurerm_resource_group.argo_rg.name
+
+  dns_prefix = "argo-k8s-heroes"
+
+  default_node_pool {
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_D2_v2"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+}
