@@ -25,12 +25,17 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: '44 14 * * 1'
+    
+  
 
 jobs:
   MSDO:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     # currently only windows latest is supported
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-dotnet@v3
