@@ -13,7 +13,7 @@ variable "flux_aks_name" {
 
 # Resource group
 resource "azurerm_resource_group" "flux_rg" {
-  name     = "flux-aks-tour-of-heroes"
+  name     = "flux-aks-tour-of-heroes-demo"
   location = "West Europe"
 }
 
@@ -26,7 +26,7 @@ resource "azurerm_kubernetes_cluster" "flux_aks" {
 
   default_node_pool {
     name       = "default"
-    node_count = 1
+    node_count = 3
     vm_size    = "Standard_D2_v2"
   }
 
@@ -44,7 +44,7 @@ variable "argocd_aks_name" {
 
 # Resource group
 resource "azurerm_resource_group" "argo_rg" {
-  name     = "argo-aks-tour-of-heroes"
+  name     = "argo-aks-tour-of-heroes-demo"
   location = "West Europe"
 }
 
@@ -57,7 +57,7 @@ resource "azurerm_kubernetes_cluster" "argo_aks" {
 
   default_node_pool {
     name       = "default"
-    node_count = 1
+    node_count = 3
     vm_size    = "Standard_D2_v2"
   }
 
